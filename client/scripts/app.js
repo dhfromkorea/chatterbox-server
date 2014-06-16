@@ -1,2 +1,86 @@
 // YOUR CODE HERE:
+var app = {};
+app.server ='https://api.parse.com/1/classes/chatterbox';
+app.init = function(){
+  this.friends = {};
+  this.rooms = {};
+  $(document).ready(function(){
+    $('#send').bind('submit', function(e){
+      app.handleSubmit();
+      return false;
+    });
+  });
+  $('.clearMessagebutton').click(app.addMessage);
+  setInterval(this.fetch.bind(app), 1000);
+};
+app.handleSubmit = function(){
+  var message = {};
+  message.username = window.location.search.split('?username=')[1];
+  message.text = $('#message').val();
+  message.roomname = 'default';
+  app.send(message);
+  $('#message').val('');
+};
+app.send = function(message){
+  $.ajax({
+    url: app.server,
+    type: 'POST',
+    data: JSON.stringify(message),
+    contentType: 'application/json',
+    success: function (data) {
+      console.log('chatterbox: Message sent');
+    },
+    error: function (data) {
+      console.error('chatterbox: Failed to send message');
+    }
+  });
+};
+app.fetch = function(){
+  $.ajax({
+    url: this.server,
+    type: 'GET',
+    data: 'order=-createdAt',
+    contentType: 'application/json',
+    success: function (data) {
+      app.clearMessages();
+      _.each(data.results, function(message){
+        app.addMessage(message);
+      });
 
+      for (var i=0; i < 50; i++){
+        var roomName = data.results[i].roomname;
+        if(!app.rooms.hasOwnProperty(roomName)){
+          app.rooms[roomName] = true;
+          app.addRoom(roomName);
+        }
+      }
+    },
+    error: function (data) {
+      console.error('chatterbox: Failed to send message');
+    }
+  });
+};
+app.clearMessages = function(){
+  $('#chats').html('');
+};
+app.addMessage = function(message){
+  var div = $('<div>');
+  var $userName = $('<span class="username">').text(message.username);
+  var textMessage = ' : ' + message.text;
+  var $message = $('<span>').text(textMessage);
+  div.append($userName);
+  div.append($message);
+  $('#chats').append(div);
+  $userName.click(function(){
+    app.addFriend($(this).text());
+  });
+};
+app.addRoom = function(roomname){
+  var option = $('<option>');
+  option.text(roomname);
+  $('#roomSelect').append(option);
+};
+app.addFriend = function(newFriend){
+  // app.friends.push(newfriend)
+  this.friends[newFriend] = newFriend;
+};
