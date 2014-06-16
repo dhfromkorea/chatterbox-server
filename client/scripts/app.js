@@ -4,10 +4,15 @@ app.server ='https://api.parse.com/1/classes/chatterbox';
 app.init = function(){
   this.friends = {};
   this.rooms = {};
+  this.selectedRoom = undefined;
   $(document).ready(function(){
     $('#send').bind('submit', function(e){
       app.handleSubmit();
       return false;
+    });
+    $('#roomSelect').on('change', function(){
+      app.selectedRoom = this.value;
+      app.fetch();
     });
   });
   $('.clearMessagebutton').click(app.addMessage);
@@ -36,18 +41,24 @@ app.send = function(message){
   });
 };
 app.fetch = function(){
+  var roomname = this.selectedRoom;
+  if(roomname !== undefined){
+    roomname = '&where={"roomname":"'+roomname+'"}';
+  } else {
+    roomname = '';
+  }
   $.ajax({
     url: this.server,
     type: 'GET',
-    data: 'order=-createdAt',
+    data: 'order=-createdAt'+roomname,
     contentType: 'application/json',
     success: function (data) {
       app.clearMessages();
       _.each(data.results, function(message){
         app.addMessage(message);
       });
-
-      for (var i=0; i < 50; i++){
+      var dataLength = (data.results.length > 49) ? 50 : data.results.length;
+      for (var i=0; i < dataLength; i++){
         var roomName = data.results[i].roomname;
         if(!app.rooms.hasOwnProperty(roomName)){
           app.rooms[roomName] = true;
@@ -56,7 +67,7 @@ app.fetch = function(){
       }
     },
     error: function (data) {
-      console.error('chatterbox: Failed to send message');
+      console.error('chatterbox: Failed to receive messages');
     }
   });
 };
