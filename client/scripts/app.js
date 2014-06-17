@@ -76,13 +76,20 @@ app.clearMessages = function(){
 };
 app.addMessage = function(message){
   var div = $('<div>');
-  var $userName = $('<span class="username">').text(message.username);
+  var classUser = 'username';
+  if ( this.friends.hasOwnProperty(message.username) ){
+    classUser += ' friend';
+  }
+  // class => username friend
+  var $userName = $("<a class='"+classUser+"'>").text(message.username);
   var textMessage = ' : ' + message.text;
   var $message = $('<span>').text(textMessage);
   div.append($userName);
   div.append($message);
   $('#chats').append(div);
+
   $userName.click(function(){
+    console.log('you just added ' + $(this).text() + ' as a friend');
     app.addFriend($(this).text());
   });
 };
@@ -92,6 +99,5 @@ app.addRoom = function(roomname){
   $('#roomSelect').append(option);
 };
 app.addFriend = function(newFriend){
-  // app.friends.push(newfriend)
   this.friends[newFriend] = newFriend;
 };
