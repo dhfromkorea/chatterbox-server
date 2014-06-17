@@ -15,7 +15,6 @@ app.init = function(){
       app.fetch();
     });
   });
-  $('.clearMessagebutton').click(app.addMessage);
   setInterval(this.fetch.bind(app), 1000);
 };
 app.handleSubmit = function(){
@@ -80,7 +79,6 @@ app.addMessage = function(message){
   if ( this.friends.hasOwnProperty(message.username) ){
     classUser += ' friend';
   }
-  // class => username friend
   var $userName = $("<a class='"+classUser+"'>").text(message.username);
   var textMessage = ' : ' + message.text;
   var $message = $('<span>').text(textMessage);
