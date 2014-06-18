@@ -12,31 +12,53 @@ var Room = Backbone.Collection.extend({
     return response.results;
   },
   initialize: function() {
-    this.fetch({data: {'order':'-createdAt'}});
-    // setInterval(this.fetch({data: {'order':'-createdAt'}})
-    //   .bind(this), 1000);
+    setInterval(this.fetch.bind(this, {data: {'order':'-createdAt'}} )
+    , 1000);
   },
 });
 
 var RoomView = Backbone.View.extend({
-   initialize: function(){
-     this.collection.on('add', function(model){
+  initialize: function(){
+    this.collection.on('add', function(model){
       var temp = new MessageView({model:model});
-      console.log(temp.render().el);
-      this.$el.append(temp.render().el);
-     },this);
-   }}
-   );
+      this.$el.prepend(temp.render().el);
+    },this);
+  }
+});
 
 var MessageView = Backbone.View.extend({
   render: function(){
-    var template = _.template('<div>hello I am a superhuman</div>');
-    this.$el.html(template(this.model.attributes));
+    var message = this.model.attributes;
+    var template = _.template('<span><%= _.escape(username) %></span><span> : <%= _.escape(text) %> </span>');
+    message.text = message.text || '';
+    message.username = message.username || '';
+    this.$el.html(template(message));
     return this;
+  }
+});
+
+var SubmitView = Backbone.View.extend({
+  model: Message,
+  events: {
+    'submit': 'submit'
+  },
+  submit: function(e) {
+    e.preventDefault();
+    var message = {
+      text: this.$('input[name=message]').val(),
+      username: window.location.search.split('?username=')[1]
+      // roomname prop should be created here.
+    };
+    this.collection.create({
+      text: message.text,
+      username: message.username
+    });
+    $("input[name=message]").val("");
   }
 });
 
 $(function(){
   var room = new Room();
   var roomView = new RoomView({collection: room, el: $('#chats')});
+  var submitView = new SubmitView({collection: room, el:$('#send')});
 });
