@@ -1,9 +1,11 @@
 // YOUR CODE HERE:
 var app = {};
 
+Message = model;
+Room = collection;
+
 
 var Message = Backbone.Model.extend({
-  urlRoot: 'https://api.parse.com/1/classes/chatterbox',
   intialize: function() {
     this.set({
       'room': 'default',
@@ -23,6 +25,17 @@ var Room = Backbone.Collection.extend({
       'rooms': {},
       'selectedRooms': undefined
     });
+    setInterval(this.refreshMessage.bind(this), 1000);
+  },
+  refreshMessage: function(){
+    this.fetch({
+        beforeSend: setHeader,
+        data: 'order=-createdAt',
+        success: function(collection, response, options) {
+          var messages = response.results;
+          _.each(messages, room.addMessage, this);
+        }
+    });
   },
   addMessage: function(message){
     var div = $('<div>');
@@ -39,30 +52,33 @@ var Room = Backbone.Collection.extend({
   }
 });
 
+var RoomView = Backbone.View.extend({
+
+})
+
 var MessageView = Backbone.View.extend({
-  model: Message,
-  // tagName: 'div',
-  el: 'body',
-  id: 'main',
+  // model: Message,
+  tagName: 'body',
+  // el: 'body',
+  // id: 'main',
   events: {
-    'change #roomSelect':  'roomFetch',
-    'submit #send': 'handleSubmit',
+    // 'change #roomSelect':  'roomFetch',
+    // 'submit #send': 'handleSubmit',
     'click': 'consoleLog'
   },
   initialize: function(){
-    // this.render();
-    this.model.on('change', function(){
-      this.render();
-    }, this);
+    _.bindAll(this, 'consoleLog');
+    this.render();
+    // this.model.on('', function(){
+    //   this.render();
+    // }, this);
   },
   consoleLog: function(){
     console.log('hey change binding');
   },
   render: function(){
-
-
-   var template = _.template($('#main').html(),{});
-   return this.$el.html(template);
+    var template = _.template($('#main').html(),{});
+    return this.$el.html(template);
   },
   roomFetch: function(){
 
@@ -72,28 +88,20 @@ var MessageView = Backbone.View.extend({
   }
 });
 
-var messageData = {
-  'room': 'default',
-  'text': 'default',
-  'username': 'default'
-};
-var message = new Message(messageData);
+// var messageData = {
+//   'room': 'default',
+//   'text': 'default',
+//   'username': 'default'
+// };
+//var message = new Message(messageData);
 var room = new Room();
 var setHeader = function(jqXHR) {
-  jqXHR.setRequestHeader("X-Parse-Application-Id", "voLazbq9nXuZuos9hsmprUz7JwM2N0asnPnUcI7r");
-  jqXHR.setRequestHeader("X-Parse-REST-API-Key", "QC2F43aSAghM97XidJw8Qiy1NXlpL5LR45rhAVAf");
+    jqXHR.setRequestHeader("X-Parse-Application-Id", "voLazbq9nXuZuos9hsmprUz7JwM2N0asnPnUcI7r");
+    jqXHR.setRequestHeader("X-Parse-REST-API-Key", "QC2F43aSAghM97XidJw8Qiy1NXlpL5LR45rhAVAf");
 };
 
-room.fetch({
-  beforeSend: setHeader,
-  data: 'order=-createdAt',
-  success: function(collection, response, options) {
-    var messages = response.results;
-    _.each(messages, room.addMessage, this);
-  }
-});
 
-var messageView = new MessageView();
+var messageView = new MessageView({model: message});
 
 
 // app.init = function() {
