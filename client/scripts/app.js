@@ -17,17 +17,22 @@ var Room = Backbone.Collection.extend({
         'order': '-createdAt'
       }
     }), 1000);
-  },
+  }
 });
 
 var RoomView = Backbone.View.extend({
   initialize: function() {
     this.collection.on('add', function(model) {
-      var temp = new MessageView({
+      var messageInstance = new MessageView({
         model: model
       });
-      this.$el.prepend(temp.render().el);
+      this.$el.prepend(messageInstance.render().el);
     }, this);
+    // var roomname = messageInstance.attributes.roomname;
+    // if (!_.contains(this.collection.roomnames, roomname)) {
+    //   this.collection.roomnames.push(roomname);
+    //   this.collection.addRoom(roomname);
+    // }
   }
 });
 
@@ -66,6 +71,24 @@ var SubmitView = Backbone.View.extend({
   }
 });
 
+var SelectView = Backbone.View.extend({
+  events: {
+    'change': 'chooseRoom'
+  },
+  chooseRoom: function(e) {
+    e.preventDefault();
+    var roomname = this.$('label').val();
+    this.collection.fetch({
+      'order': '-createdAt',
+      'where': {
+        'roomname': roomname
+      }
+    });
+  }
+});
+// keep a list of friends
+// keep a list of rooms that appeared
+
 $(function() {
   var room = new Room();
   var roomView = new RoomView({
@@ -75,5 +98,9 @@ $(function() {
   var submitView = new SubmitView({
     collection: room,
     el: $('#send')
+  });
+  var selectView = new SelectView({
+    collection: room,
+    el: $('#rooms')
   });
 });
