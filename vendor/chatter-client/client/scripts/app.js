@@ -1,101 +1,106 @@
 // YOUR CODE HERE:
 var app = {};
-app.server ='https://api.parse.com/1/classes/chatterbox';
-app.init = function(){
-  this.friends = {};
-  this.rooms = {};
-  this.selectedRoom = undefined;
-  $(document).ready(function(){
-    $('#send').bind('submit', function(e){
-      app.handleSubmit();
-      return false;
-    });
-    $('#roomSelect').on('change', function(){
-      app.selectedRoom = this.value;
-      app.fetch();
-    });
-  });
-  setInterval(this.fetch.bind(app), 1000);
-};
-app.handleSubmit = function(){
-  var message = {};
-  message.username = window.location.search.split('?username=')[1];
-  message.text = $('#message').val();
-  message.roomname = 'default';
-  app.send(message);
-  $('#message').val('');
-};
-app.send = function(message){
-  $.ajax({
-    url: app.server,
-    type: 'POST',
-    data: JSON.stringify(message),
-    contentType: 'application/json',
-    success: function (data) {
-      console.log('chatterbox: Message sent');
-    },
-    error: function (data) {
-      console.error('chatterbox: Failed to send message');
-    }
-  });
-};
-app.fetch = function(){
-  var roomname = this.selectedRoom;
-  if(roomname !== undefined){
-    roomname = '&where={"roomname":"'+roomname+'"}';
-  } else {
-    roomname = '';
-  }
-  $.ajax({
-    url: this.server,
-    type: 'GET',
-    data: 'order=-createdAt'+roomname,
-    contentType: 'application/json',
-    success: function (data) {
-      app.clearMessages();
-      _.each(data.results, function(message){
-        app.addMessage(message);
-      });
-      var dataLength = (data.results.length > 49) ? 50 : data.results.length;
-      for (var i=0; i < dataLength; i++){
-        var roomName = data.results[i].roomname;
-        if(!app.rooms.hasOwnProperty(roomName)){
-          app.rooms[roomName] = true;
-          app.addRoom(roomName);
-        }
-      }
-    },
-    error: function (data) {
-      console.error('chatterbox: Failed to receive messages');
-    }
-  });
-};
-app.clearMessages = function(){
-  $('#chats').html('');
-};
-app.addMessage = function(message){
-  var div = $('<div>');
-  var classUser = 'username';
-  if ( this.friends.hasOwnProperty(message.username) ){
-    classUser += ' friend';
-  }
-  var $userName = $("<a class='"+classUser+"'>").text(message.username);
-  var textMessage = ' : ' + message.text;
-  var $message = $('<span>').text(textMessage);
-  div.append($userName);
-  div.append($message);
-  $('#chats').append(div);
 
-  $userName.click(function(){
-    console.log('you just added ' + $(this).text() + ' as a friend');
-    app.addFriend($(this).text());
+var Message = Backbone.Model.extend({
+  idAttribute: 'objectId'
+});
+
+var Room = Backbone.Collection.extend({
+  url: 'https://api.parse.com/1/classes/chatterbox',
+  model: Message,
+  parse: function(response) {
+    return response.results;
+  },
+  initialize: function() {
+    setInterval(this.fetch.bind(this, {
+      data: {
+        'order': '-createdAt'
+      }
+    }), 1000);
+  }
+});
+
+var RoomView = Backbone.View.extend({
+  initialize: function() {
+    this.collection.on('add', function(model) {
+      var messageInstance = new MessageView({
+        model: model
+      });
+      this.$el.prepend(messageInstance.render().el);
+    }, this);
+    // var roomname = messageInstance.attributes.roomname;
+    // if (!_.contains(this.collection.roomnames, roomname)) {
+    //   this.collection.roomnames.push(roomname);
+    //   this.collection.addRoom(roomname);
+    // }
+  }
+});
+
+var MessageView = Backbone.View.extend({
+  tagName: 'li',
+  render: function() {
+    var message = this.model.attributes;
+    var template = _.template('<span class="username"><%= _.escape(username) %> : </span><span class="message" data-id="<%= _.escape(objectId) %>"><%= _.escape(text) %> </span>');
+    message.text = message.text || '';
+    message.username = message.username || '';
+    message.objectId = message.objectId || '';
+    this.$el.html(template(message)).addClass('panel');
+    return this;
+  }
+});
+
+var SubmitView = Backbone.View.extend({
+  model: Message,
+  events: {
+    'submit': 'submit'
+  },
+  submit: function(e) {
+    e.preventDefault();
+    var message = {
+      text: this.$('input[name=message]').val(),
+      username: window.location.search.split('?username=')[1]
+      // roomname prop should be created here.
+    };
+    if (message.text) {
+      this.collection.create({
+        text: message.text,
+        username: message.username
+      });
+      $("input[name=message]").val("");
+    }
+  }
+});
+
+var SelectView = Backbone.View.extend({
+  events: {
+    'change': 'chooseRoom'
+  },
+  chooseRoom: function(e) {
+    e.preventDefault();
+    var roomname = this.$('label').val();
+    this.collection.fetch({
+      'order': '-createdAt',
+      'where': {
+        'roomname': roomname
+      }
+    });
+  }
+});
+// keep a list of friends
+// keep a list of rooms that appeared
+
+$(function() {
+  var room = new Room();
+  var roomView = new RoomView({
+    collection: room,
+    el: $('#chats')
   });
-};
-app.addRoom = function(roomname){
-  var option = $('<option>');
-  option.text(roomname);
-  $('#roomSelect').append(option);
-};
-app.addFriend = function(newFriend){
-  this.friends[newFriend] = newFriend;
-};
+  var submitView = new SubmitView({
+    collection: room,
+    el: $('#send')
+  });
+  var selectView = new SelectView({
+    collection: room,
+    el: $('#rooms')
+  });
+});
