@@ -6,7 +6,8 @@ var Message = Backbone.Model.extend({
 });
 
 var Room = Backbone.Collection.extend({
-  url: 'http://chatter-server.herokuapp.com/classes/room1',
+  // url: 'http://localhost:3000/classes/messages',
+  url: 'http://chatter-server.herokuapp.com/classes/messages',
   model: Message,
   parse: function(response) {
     return response.results;
@@ -40,8 +41,8 @@ var MessageView = Backbone.View.extend({
   tagName: 'li',
   render: function() {
     var message = this.model.attributes;
-    var template = _.template('<span class="username"><%= _.escape(username) %> : </span><span class="message" data-id="<%= _.escape(objectId) %>"><%= _.escape(text) %> </span>');
-    message.text = message.text || '';
+    var template = _.template('<span class="username"><%= _.escape(username) %> : </span><span class="message" data-id="<%= _.escape(objectId) %>"><%= _.escape(message) %> </span>');
+    message.message = message.message || '';
     message.username = message.username || '';
     message.objectId = message.objectId || '';
     this.$el.html(template(message)).addClass('panel');
