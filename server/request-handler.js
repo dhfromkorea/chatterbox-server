@@ -31,7 +31,12 @@ var handleRequest = function(request, response) {
         body += chunk;
       });
       request.on('end', function() {
-        data.results.push(JSON.parse(body));
+        if ( request.url.substring( request.url.indexOf('?') + 1).length ) {
+          data.results.push(JSON.parse(body));
+        } else {
+          var qs = require('querystring');
+          data.results.push(qs.parse(body));
+        }
         response.writeHead(201, headers);
         response.end('success');
       });
