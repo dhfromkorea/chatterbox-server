@@ -9,8 +9,8 @@
 var data = {
   'results': []
 };
-
 var handleRequest = function(request, response) {
+
   var defaultCorsHeaders = {
     "access-control-allow-origin": "*",
     "access-control-allow-methods": "GET, POST, PUT, DELETE, OPTIONS",
@@ -19,6 +19,7 @@ var handleRequest = function(request, response) {
   };
 
   var headers = defaultCorsHeaders;
+
   if (request.url.indexOf('/classes/') !== -1) {
     if (request.method === 'GET') {
       headers['Content-Type'] = "application/json";
