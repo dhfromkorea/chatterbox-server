@@ -6,7 +6,7 @@ var Message = Backbone.Model.extend({
 });
 
 var Room = Backbone.Collection.extend({
-  url: 'https://api.parse.com/1/classes/chatterbox',
+  url: 'http://localhost:8080/1/classes/messages',
   model: Message,
   parse: function(response) {
     return response.results;
