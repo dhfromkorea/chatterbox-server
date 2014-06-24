@@ -6,7 +6,7 @@ var Message = Backbone.Model.extend({
 });
 
 var Room = Backbone.Collection.extend({
-  url: 'http://localhost:8080/1/classes/messages',
+  url: 'http://chatter-server.herokuapp.com/classes/room1',
   model: Message,
   parse: function(response) {
     return response.results;

@@ -16,10 +16,9 @@ var data = {
   'results': []
 };
 
-var handleRequest = {
-  handler: function(request, response) {
-    var url = require('url').parse(request.url);
-    if (url.pathname === '/classes/room1' || url.pathname === '/classes/messages' ) {
+var handleRequest = function(request, response) {
+    // var url = require('url').parse(request.url);
+    if ( request.url.indexOf('/classes/') !== -1 ) {
       if (request.method === 'GET') {
         response.writeHead(200, {
           'Content-Type': 'application/json'
@@ -47,7 +46,6 @@ var handleRequest = {
       response.writeHead(statusCode, headers);
       response.end("doesn't exist");
     }
-  }
 };
 
-module.exports = handleRequest;
+module.exports.handler = handleRequest;
