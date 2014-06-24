@@ -25,7 +25,7 @@ var handleRequest = function(request, response) {
       response.writeHead(200, headers);
       response.end(JSON.stringify(data));
     } else if (request.method === 'POST') {
-      headers['Content-Type'] = "text/plain";
+      headers['Content-Type'] = "application/json";
       var body = '';
       request.on('data', function(chunk) {
         body += chunk;
