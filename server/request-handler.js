@@ -32,10 +32,10 @@ var handleRequest = function(request, response) {
       });
       request.on('end', function() {
         // if ( request.url.substring( request.url.indexOf('?') + 1).length ) {
-        //   data.results.push(JSON.parse(body));
+          data.results.push(JSON.parse(body));
         // } else {
-          var qs = require('querystring');
-          data.results.push(qs.parse(body));
+          // var qs = require('querystring');
+          // data.results.push(qs.parse(body));
         // }
         response.writeHead(201, headers);
         response.end('success');
