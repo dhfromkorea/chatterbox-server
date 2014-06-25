@@ -14,41 +14,41 @@
   <script src="bower_components/jquery/jquery.min.js"></script>
   <script src="bower_components/backbone/backbone.js"></script>
   <!-- your scripts -->
-  <!-- <script src="scripts/config.js"></script>-->
+  <script src="scripts/config.js"></script>
   <script src="scripts/app.js"></script>
 </head>
 
 <body>
-  <div class="row">
-    <div class="small-7 columns small-offset-1">
-      <h1>chat chat chat</h1>
+  <div class="app">
+    <div class="row">
+      <div class="small-7 columns small-offset-1">
+        <h1>chat chat chat</h1>
+      </div>
+      <div class="small-3 columns left" id="rooms">
+        <label>Rooms:
+          <select id="roomSelect">
+          </select>
+        </label>
+      </div>
     </div>
-    <div class="small-3 columns left" id="rooms">
-      <label>Rooms:
-        <select id="roomSelect">
-      </select>
-      </label>
-    </div>
-  </div>
-  <div class="row">
-    <div class="small-10 columns small-offset-1">
-      <form action="#" id="send" method="post">
-        <div class="row">
-          <div class="small-10 columns">
-            <input type="text" name="message" id="message" placeholder="what's up today?" />
+    <div class="row">
+      <div class="small-10 columns small-offset-1">
+        <form action="#" id="send" method="post">
+          <div class="row">
+            <div class="small-10 columns">
+              <input type="text" name="message" id="message" placeholder="what's up today?" />
+            </div>
+            <div class="small-2 columns">
+              <input type="submit" name="submit" class="submit button postfix" />
+            </div>
           </div>
-          <div class="small-2 columns">
-            <input type="submit" name="submit" class="submit button postfix" />
-          </div>
-        </div>
-      </form>
+        </form>
+      </div>
     </div>
-  </div>
-  <div class="row">
-    <ul class="small-10 columns small-offset-1 no-bullet chats" id="chats"></ul>
+    <div class="row">
+      <ul class="small-10 columns small-offset-1 no-bullet chats" id="chats"></ul>
+    </div>
   </div>
 </body>
 
 </html>
-
-
