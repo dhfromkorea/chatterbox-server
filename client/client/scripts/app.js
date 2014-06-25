@@ -13,7 +13,7 @@ var Message = Backbone.Model.extend({
 
 // =COLLECTION
 var Room = Backbone.Collection.extend({
-  url: 'http://localhost:3000/classes/messages',
+  url: '/classes/messages',
   model: Message,
   parse: function(response) {
     return response.results;

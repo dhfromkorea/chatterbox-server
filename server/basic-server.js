@@ -38,7 +38,7 @@ app.readMessages = function() {
 };
 
 app.get('/classes/messages', function(req, res) {
-  res.send(200, this.readMessages());
+  res.send(200, app.readMessages());
 });
 
 app.get('*', function(req, res) {
@@ -46,7 +46,7 @@ app.get('*', function(req, res) {
 });
 
 app.post('/classes/messages', function(req, res) {
-  this.saveMessages(req.body);
+  app.saveMessages(req.body);
   res.send(201, 'poseted successfully');
 });
 
@@ -57,7 +57,9 @@ app.post('/classes/messages', function(req, res) {
 // heroku
 
 var port = Number(process.env.PORT || 5000);
-app.listen(port);
+app.listen(port, function() {
+  console.log("Listening on " + port);
+});
 
 
 // local test
